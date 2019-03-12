@@ -2,8 +2,10 @@
     "name": "testapi",
     "version": "0.0.1",
     "dependencies": {
+        "bcrypt": "^3.0.4",
         "koa": "^2.7.0",
         "koa-bodyparser": "^4.2.1",
+        "koa-jwt": "^3.5.1",
         "koa-logger": "^3.2.0",
         "koa-router": "^7.4.0",
         "mongoose": "^5.4.18"

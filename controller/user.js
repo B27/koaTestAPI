@@ -1,11 +1,17 @@
+const bcrypt = require('bcrypt');
 const userModel = require('../model/User');
 
 module.exports = {
-    async getById(id) {
-        
+    async getByName(name) {
+        return await userModel.findOne({ username: name }).exec();
     },
 
-    async insertOne() {
+    async insertOne(usrname, pwrd) {
+        const pwrdHash = await bcrypt.hash(pwrd, 5);
 
+        userModel.create({
+            username: usrname,
+            passwordHash: pwrdHash
+        });
     }
 }

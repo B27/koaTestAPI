@@ -1,31 +1,34 @@
-const News = require('../model/News');
+const modelNews = require('../model/News');
+const mongoose = require('mongoose');
+
+const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = {
     async getAll() {
-        return News.find();
+        return modelNews.find();
     },
 
-    async insertOne(header, text, userId) {
+    async insertOne(head, txt, usrId) {
 
-        News.create({
-            header: header,
-            text: text,
-            userId: userId
+        modelNews.create({
+            header: head,
+            text: txt,
+            userId: new ObjectId(usrId)
         });
 
     },
 
-    async updateOne(id, updatedNews) {
-        const bol = id == "5c86076cf0a7ab2f4c67f251";
-        News.findByIdAndUpdate(id, updatedNews, function (err, user) {
+    async updateOne(id, updNews) {
+        modelNews.findByIdAndUpdate(id, updNews, (err, res) => {
             if (err) return console.log(err);
             console.log("Обновленный объект", user);
         });
     },
 
     async deleteOne(id) {
-        News.findByIdAndDelete(id, (err, res) => {
-            console.log(res);
+        modelNews.findByIdAndDelete(id, (err, res) => {
+            if (err) return console.log(err);
+            console.log("Удалённый объект", res);
         });
     }
 }

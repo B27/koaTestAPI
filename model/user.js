@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
-    username: String
-}, {
-    versionKey: false
+    username: String,
+    passwordHash: String
 });
 
 module.exports = mongoose.model('User', schema)
