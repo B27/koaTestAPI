@@ -31,8 +31,6 @@ const NEWTEXT = '~~%%~~Длинный текст который является
 
 describe('Тестирование API', () => {
 
-
-
   after(async function () {
     await User.deleteMany({
       username: 'testuserwithtestpassword'
@@ -50,214 +48,146 @@ describe('Тестирование API', () => {
 
 
   describe('Регистрация и вход', () => {
-    it('Сервер должен зарегистрировать пользователя и вернуть 201', (done) => {
-      chai.request(app)
+    it('Сервер должен зарегистрировать пользователя и вернуть 201', async () => {
+      let response = await chai.request(app)
         .post('/register')
         .send({
           username: 'testuserwithtestpassword',
           password: 'johnson'
         })
-        .end((err, res) => {
-          should.not.exist(err);
-          res.status.should.eql(201);
-        });
 
-      User.findOne({
+      response.status.should.equal(201);
+
+      should.exist(User.findOne({
         username: 'testuserwithtestpassword'
-      }, (err, res) => {
-        should.not.exist(err);
-        should.exist(res);
-        done();
-      });
+      }).exec());
     });
 
-    it('Неверный логин и пароль, должен вернуть 401 ', (done) => {
-      chai.request(app)
+    it('Неверный логин и пароль, должен вернуть 401 ', async () => {
+      let response = await chai.request(app)
         .post('/login')
         .send({
           username: 'jery',
           password: 'joson'
-        })
-        .end((err, res) => {
-          res.status.should.eql(401);
-          should.not.exist(res.body.token);
-          done();
         });
+
+      response.status.should.equal(401);
+      should.not.exist(response.body.token);
     });
 
-    it('Верный логин и пароль, должен вернуть токен и 201', (done) => {
-      chai.request(app)
+    it('Верный логин и пароль, должен вернуть токен и 201', async () => {
+      let response = await chai.request(app)
         .post('/login')
         .send({
           username: 'testuserwithtestpassword',
           password: 'johnson'
-        })
-        .end((err, res) => {
-          res.status.should.eql(200);
-          jsonToken = res.body.token;
-          should.exist(res.body.token);
-          done();
         });
+
+      response.status.should.equal(200);
+      jsonToken = response.body.token;
+      should.exist(response.body.token);
     });
   });
 
   describe('Проверка доступа к приватным роутам', () => {
-    it('Доступ к get /news без токена должен вернуть 401', (done) => {
-      chai.request(app)
+    it('Доступ к get /news без токена должен вернуть 401', async () => {
+      let response = await chai.request(app)
+        .get('/news');
+
+      response.status.should.equal(401);
+    });
+
+    it('Доступ к post /news без токена должен вернуть 401', async () => {
+      let response = await chai.request(app)
+        .post('/news');
+
+      response.status.should.equal(401);
+    });
+
+    it('Доступ к put /news/id без токена должен вернуть 401', async () => {
+      let response = await chai.request(app)
+        .put('/news/id');
+
+      response.status.should.equal(401);
+    });
+
+    it('Доступ к delete /news/id без токена должен вернуть 401', async () => {
+      let response = await chai.request(app)
+        .delete('/news/id');
+
+      response.status.should.equal(401);
+    });
+
+    it('get /news с токеном должен вернуть json объекты новостей и 200', async () => {
+      let response = await chai.request(app)
         .get('/news')
-        .end((err, res) => {
-          res.status.should.eql(401);
-          done();
-        });
+        .set('Authorization', `Bearer ${jsonToken}`);
+
+      response.status.should.equal(200);
+      response.type.should.equal('application/json');
     });
 
-    it('Доступ к post /news без токена должен вернуть 401', (done) => {
-      chai.request(app)
-        .post('/news')
-        .end((err, res) => {
-          res.status.should.eql(401);
-          done();
-        });
-    });
-
-    it('Доступ к put /news/id без токена должен вернуть 401', (done) => {
-      chai.request(app)
-        .put('/news/id')
-        .end((err, res) => {
-          res.status.should.eql(401);
-          done();
-        });
-    });
-
-    it('Доступ к delete /news/id без токена должен вернуть 401', (done) => {
-      chai.request(app)
-        .delete('/news/id')
-        .end((err, res) => {
-          res.status.should.eql(401);
-          done();
-        });
-    });
-
-    it('get /news с токеном должен вернуть json объекты новостей и 200', (done) => {
-      chai.request(app)
-        .get('/news')
-        .set('Authorization', `Bearer ${jsonToken}`)
-        .end((err, res) => {
-          res.status.should.eql(200);
-          res.type.should.eql('application/json');
-          done();
-        });
-    });
-
-    it('post /news должен создавать новость в бд (заголовок, текст, id пользователя) и возвращать 201', (done) => {
-      chai.request(app)
+    it('post /news должен создавать новость в бд (заголовок, текст, id пользователя) и возвращать 201', async () => {
+      let response = await chai.request(app)
         .post('/news')
         .set('Authorization', `Bearer ${jsonToken}`)
         .send({
           header: HEADER,
           text: TEXT
-        })
-        .end((err, res) => {
-          res.status.should.eql(201);
-          idForNews = res.body.newsId;
-          console.log('должен быть 172 idForNews ' + idForNews);
-          should.exist(res.body.newsId);
-          console.log('должен быть 174 idForNews ' + idForNews);
-
-          const jwtEncoded = jwt.verify(jsonToken, secretString);
-
-          News.findOne({
-            // _id: new ObjectId(newsId),
-            header: HEADER,
-            // text: TEXT,
-            // userId: jwtEncoded.id
-          }, (err, res) => {
-            console.log('должен быть 185 idForNews ' + idForNews);
-            should.not.exist(err);
-            should.exist(res);
-            done();
-          });
-          //  done();
         });
+
+      response.status.should.equal(201);
+      should.exist(response.body.newsId);
+      idForNews = response.body.newsId;
+
+      const jwtEncoded = jwt.verify(jsonToken, secretString);
+
+      should.exist(await News.findOne({
+        _id: new ObjectId(idForNews),
+        header: HEADER,
+        text: TEXT,
+        userId: jwtEncoded.id
+      }).exec());
 
     });
 
-    it('put /news/id должен обновлять новость в бд (заголовок, текст) и возвращать 200', async (done) => {
-      let chaiReq = await chai.request(app)
+    it('put /news/id должен обновлять новость в бд (заголовок, текст) и возвращать 200', async () => {
+      let response = await chai.request(app)
         .put(`/news/${idForNews}`)
         .set('Authorization', `Bearer ${jsonToken}`)
         .send({
           header: NEWHEADER,
           text: NEWTEXT
         });
-        // .then((res) => {
 
-        // });
-      chaiReq.status.should.equal(200);     
-      // console.log('должен быть 201 idForNews ' + idForNews);
-      // res.status.should.eql(200);
+      response.status.should.equal(200);
 
       const jwtEncoded = jwt.verify(jsonToken, secretString);
 
-      done();
-
-      // try {
-      //   let res = await News.findOne({
-      //     _id: new ObjectId(idForNews),
-      //     header: NEWHEADER,
-      //     text: NEWTEXT,
-      //     userId: jwtEncoded.id
-      //   }).exec();
-  
-      //   should.exist(res);
-      //   return;
-      // } catch (err) {
-      //   return;
-      // }
-     
-
-      // News.findOne({
-      //   _id: new ObjectId(idForNews),
-      //   header: NEWHEADER,
-      //   text: NEWTEXT,
-      //   userId: jwtEncoded.id
-      // }, (err, res) => {
-      //   should.not.exist(err);
-      //   should.exist(res);
-
-      //   done();
-      // });
-
-
+      should.exist(await News.findOne({
+        _id: new ObjectId(idForNews),
+        header: NEWHEADER,
+        text: NEWTEXT,
+        userId: jwtEncoded.id
+      }).exec());
     });
 
-    // it('delete /news/id должен удалять новость в бд и возвращать 202', (done) => {
-    //   chai.request(app)
-    //     .delete(`/news/${idForNews}`)
-    //     .set('Authorization', `Bearer ${jsonToken}`)
-    //     .end((err, res) => {
-    //       res.status.should.eql(202);
+    it('delete /news/id должен удалять новость в бд и возвращать 202', async () => {
+      let response = await chai.request(app)
+        .delete(`/news/${idForNews}`)
+        .set('Authorization', `Bearer ${jsonToken}`);
 
-    //       done();
-    //     });
+      response.status.should.equal(202);
 
+      const jwtEncoded = jwt.verify(jsonToken, secretString);
 
-    // });
-
-    // it('обновление в бд', (done) => {
-    //   const jwtEncoded = jwt.verify(jsonToken, secretString);
-
-    //   News.findOne({
-    //     _id: new ObjectId(idForNews),
-    //     header: NEWHEADER,
-    //     text: NEWTEXT,
-    //     userId: jwtEncoded.id
-    //   }, (err, res) => {
-    //     should.not.exist(err);
-    //     should.not.exist(res);
-    //     done();
-    //   });
-    // });
+      should.not.exist(await News.findOne({
+        _id: new ObjectId(idForNews),
+        header: NEWHEADER,
+        text: NEWTEXT,
+        userId: jwtEncoded.id
+      }).exec());
+    });
 
   });
 

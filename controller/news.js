@@ -24,16 +24,10 @@ module.exports = {
     },
 
     async updateOne(id, updNews) {
-        modelNews.findByIdAndUpdate(id, updNews, (err, res) => {
-            if (err) return console.log(err);
-            console.log("Обновленный объект", res);
-        });
+        await modelNews.findByIdAndUpdate(id, updNews).orFail();
     },
 
     async deleteOne(id) {
-        modelNews.findByIdAndDelete(id, (err, res) => {
-            if (err) return console.log(err);
-            console.log("Удалённый объект", res);
-        });
+        await modelNews.findByIdAndDelete(id).orFail();
     }
 }
