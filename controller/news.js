@@ -10,18 +10,23 @@ module.exports = {
 
     async insertOne(head, txt, usrId) {
 
-        modelNews.create({
-            header: head,
-            text: txt,
-            userId: new ObjectId(usrId)
-        });
+        try {
+            const news = await new modelNews({
+                header: head,
+                text: txt,
+                userId: new ObjectId(usrId)
+            }).save();
+            return news._id;
+        } catch (err) {
+            throw err;
+        }
 
     },
 
     async updateOne(id, updNews) {
         modelNews.findByIdAndUpdate(id, updNews, (err, res) => {
             if (err) return console.log(err);
-            console.log("Обновленный объект", user);
+            console.log("Обновленный объект", res);
         });
     },
 

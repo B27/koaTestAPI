@@ -6,7 +6,7 @@ const router = require('./routes');
 
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
-//mongoose.set('debug', true);
+mongoose.set('debug', true);
 mongoose.connect('mongodb://localhost:27017/koa_test_api', {
     useNewUrlParser: true
 });

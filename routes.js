@@ -20,6 +20,7 @@ router.get('/news', async (ctx) => {
 
     try {
         ctx.body = await NewsController.getAll();
+        ctx.res.statusCode = 200;
     } catch (err) {
         ctx.res.statusCode = 404;
         console.log(err);
@@ -41,7 +42,10 @@ router.post('/news', async (ctx) => {
 
     try {
 
-        await NewsController.insertOne(body.header, body.text, ctx.state.user.id);
+        const objectId = await NewsController.insertOne(body.header, body.text, ctx.state.user.id);
+        ctx.body = {
+            newsId: objectId
+        };
         ctx.res.statusCode = 201;
 
     } catch (err) {
@@ -55,7 +59,7 @@ router.put('/news/:id', async (ctx) => {
     try {
 
         await NewsController.updateOne(ctx.params.id, ctx.request.body);
-        ctx.res.statusCode = 201;
+        ctx.res.statusCode = 200;
 
     } catch (err) {
         console.log(err);
@@ -89,8 +93,10 @@ router.post('/login', async (ctx, next) => {
 
     let user;
     try {
+        
         user = await UserController.getByName(body.username);
-   
+        ctx.status = 200;
+
     } catch (err) {
         console.log('Ошибка получения пользователя' + err);
     }
@@ -112,7 +118,7 @@ router.post('/login', async (ctx, next) => {
       ctx.body = {
         token: jsonwebtoken.sign({
           id: userId,
-        }, secretString, { expiresIn: '1m' })
+        }, secretString, { expiresIn: '5m' })
       }
       await next();
     } else {
@@ -138,7 +144,6 @@ router.post('/register', async (ctx, next) => {
     try {
         await UserController.insertOne(body.username, body.password);
         ctx.res.statusCode = 201;
-        ctx.body
     } catch (err) {
         console.log(err);
     }

@@ -9,7 +9,7 @@ module.exports = {
     async insertOne(usrname, pwrd) {
         const pwrdHash = await bcrypt.hash(pwrd, 5);
 
-        userModel.create({
+        await userModel.create({
             username: usrname,
             passwordHash: pwrdHash
         });
