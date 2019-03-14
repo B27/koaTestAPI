@@ -58,7 +58,7 @@ describe('Тестирование API', () => {
 
       response.status.should.equal(201);
 
-      should.exist(User.findOne({
+      should.exist( await User.findOne({
         username: 'testuserwithtestpassword'
       }).exec());
     });
@@ -89,6 +89,7 @@ describe('Тестирование API', () => {
     });
   });
 
+  
   describe('Проверка доступа к приватным роутам', () => {
     it('Доступ к get /news без токена должен вернуть 401', async () => {
       let response = await chai.request(app)

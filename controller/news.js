@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = {
-    async getAll() {
-        return modelNews.find();
+    async getAll(ctx) {
+        return await modelNews.find();
     },
 
     async insertOne(head, txt, usrId) {
