@@ -22,6 +22,8 @@ const expect = chai.expect();
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
+
+// Поля с информацией для тестов
 let jsonToken;
 let idForNews;
 const
