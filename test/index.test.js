@@ -1,5 +1,7 @@
 process.env.NODE_ENV = 'test';
 
+//Здесь есть тесты
+
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
 // mongoose.set('debug', true);
