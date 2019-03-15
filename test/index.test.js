@@ -1,5 +1,7 @@
 process.env.NODE_ENV = 'test';
 
+//Это тесты котрые нужны нам
+
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
 // mongoose.set('debug', true);
@@ -8,6 +10,8 @@ mongoose.connect('mongodb://localhost:27017/koa_test_api', {
 });
 mongoose.connection.on('error', console.error);
 const ObjectId = mongoose.Types.ObjectId;
+
+//jwt авторизация
 
 const jwt = require('jsonwebtoken');
 const secretString = 'secret JWT need jwt';

@@ -1,6 +1,8 @@
 const modelNews = require('../model/News');
 const mongoose = require('mongoose');
 
+//Объект news
+
 const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = {
