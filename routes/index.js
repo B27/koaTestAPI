@@ -5,6 +5,7 @@ const secretString = 'secret JWT need jwt';
 
 const NewsController = require('../controller/news');
 const UserController = require('../controller/user');
+const TestController = require('../controller/test');
 
 
 const router = new Router();
@@ -12,10 +13,13 @@ const router = new Router();
 router.use(jwt({
     secret: secretString
 }).unless({
-    path: ['/login', '/register']
+    path: ['/login', '/register', '/test', 'test/:id']
 }));
 
 router
+    .get('/test/:id', TestController.get)
+    .post('/test', TestController.insert)
+
     .get('/news', NewsController.getAll)
     .post('/news', NewsController.insertOne)
     .put('/news/:id', NewsController.updateOne)

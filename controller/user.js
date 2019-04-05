@@ -55,7 +55,7 @@ async function checkThenReturnToken(ctx) {
             token: jsonwebtoken.sign({
                 id: userId,
             }, secretString, {
-                expiresIn: '5m'
+                expiresIn: '30m'
             })
         }
         return;
